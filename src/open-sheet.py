@@ -6,7 +6,8 @@ import pandas as pandas
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagree':0, '4':1, '5. Strongly agree':2, '':0}
+chars_to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagree':0, '4':1, '5. Strongly agree':2, '':0}
+defaults_to_num = {'1. Not applied':-2, '2':-1, '3. Partially applied':0, '4':1, '5. Fully applied':2, '':0}
 def to_short_labels(long_label):
     short_labels = {
         'Timestamp':'time', 
@@ -59,15 +60,16 @@ def data_from_google_sheet(sheet_url):
     gc = gspread.oauth()
     census_data = gc.open_by_url(sheet_url)
     sheet = census_data.get_worksheet(0)
-    return sheet.get_all_values()
+    data = sheet.get_all_values()
+    tslvec = np.vectorize(to_short_labels)
+    return pandas.DataFrame(data=data[1:],columns=tslvec(data[0]))
+
 
 def plot_histogram(series):
     # Make default histogram of sepal length
     # sns.distplot(series, bins=5)
     # plt.xlim(-3,3)
     plt.show()
-
-
 
 def expand_results_by_team_size(results,team_sizes):
     expanded = []
@@ -79,27 +81,24 @@ def box_plot(results):
     sns.boxplot(data=results, orient="h")
     plt.show()
 
-def box_plot_weighted(results, team_sizes):
+def box_plot_weighted(results, team_sizes, xlabels):
     expanded_results = pandas.DataFrame()
-    print(team_sizes)
     team_sizes.iloc[2] = 1 # total hack
     for column in results.columns:
         expanded_results[column] = expand_results_by_team_size(results[column].tolist(),team_sizes)
+    plt.figure(figsize=[11,5])
     sns.boxplot(data=expanded_results, orient="h")
+    plt.xticks([-2, 0, 2], xlabels)
     plt.show()
 
-
-
-
-data = data_from_google_sheet('https://docs.google.com/spreadsheets/d/136TnM1O6hNY7kGLgTcmMUwbdJ6UQF1pglQuNbny_pYQ/edit?usp=sharing')
-tslvec = np.vectorize(to_short_labels)
-d = pandas.DataFrame(data=data[1:],columns=tslvec(data[0]))
-print(d.columns)
-charsf = d.iloc[:,10:17].applymap(lambda x: to_num[x])
+sheet_url = 'https://docs.google.com/spreadsheets/d/136TnM1O6hNY7kGLgTcmMUwbdJ6UQF1pglQuNbny_pYQ/edit?usp=sharing'
+d = data_from_google_sheet(sheet_url)
+charsf = d.iloc[:,10:17].applymap(lambda x: chars_to_num[x])
+sensible_defaults = d.iloc[:,18:26].applymap(lambda x: defaults_to_num[x])
 print(charsf.corr())
-box_plot_weighted(charsf, d.iloc[:,4])
+box_plot_weighted(charsf, d.iloc[:,4], ['strongly disagree','neither agree nor disagree', 'strongly agree'])
+box_plot_weighted(sensible_defaults, d.iloc[:,4], ['Not applied','Partially applied', 'Fully applied'])
 
-# plot_histogram(charsf['project_influence'])
 
 
 
