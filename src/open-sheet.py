@@ -74,7 +74,7 @@ def plot_histogram(series):
 def expand_results_by_team_size(results,team_sizes):
     expanded = []
     for (result,size) in zip(results,team_sizes):
-        expanded = expanded + [result] * int(size)
+        expanded = expanded + [result] * int(float(size))
     return expanded
 
 def box_plot(results):
@@ -83,7 +83,7 @@ def box_plot(results):
 
 def box_plot_weighted(results, team_sizes, xlabels):
     expanded_results = pandas.DataFrame()
-    team_sizes.iloc[2] = 1 # total hack
+    # team_sizes.iloc[2] = 1 # total hack
     for column in results.columns:
         expanded_results[column] = expand_results_by_team_size(results[column].tolist(),team_sizes)
     plt.figure(figsize=[11,5])
@@ -91,13 +91,32 @@ def box_plot_weighted(results, team_sizes, xlabels):
     plt.xticks([-2, 0, 2], xlabels)
     plt.show()
 
+def chars_defaults_correlation(chars, defaults):
+    combined_frame = pandas.concat([chars, defaults],axis=1)
+    # Generate a mask for the upper triangle
+    corr = combined_frame.corr()
+    cmap = sns.diverging_palette(220, 10, as_cmap=True)
+    mask = np.triu(np.ones_like(corr, dtype=np.bool))
+    plt.figure(figsize=[9,8])  
+    sns.heatmap(corr, cmap=cmap, mask=mask)
+    plt.subplots_adjust(left=.2, bottom=.26, right=None, top=None, wspace=None, hspace=None)
+    plt.show()
+
+
 sheet_url = 'https://docs.google.com/spreadsheets/d/136TnM1O6hNY7kGLgTcmMUwbdJ6UQF1pglQuNbny_pYQ/edit?usp=sharing'
 d = data_from_google_sheet(sheet_url)
 charsf = d.iloc[:,10:17].applymap(lambda x: chars_to_num[x])
 sensible_defaults = d.iloc[:,18:26].applymap(lambda x: defaults_to_num[x])
-print(charsf.corr())
-box_plot_weighted(charsf, d.iloc[:,4], ['strongly disagree','neither agree nor disagree', 'strongly agree'])
-box_plot_weighted(sensible_defaults, d.iloc[:,4], ['Not applied','Partially applied', 'Fully applied'])
+# box_plot_weighted(charsf, d.iloc[:,4], ['strongly disagree','neither agree nor disagree', 'strongly agree'])
+chars_defaults_correlation(charsf, sensible_defaults)
+box_plot_weighted(charsf, d['twers'], ['strongly disagree','neither agree nor disagree', 'strongly agree'])
+box_plot_weighted(sensible_defaults, d['twers'], ['Not applied','Partially applied', 'Fully applied'])
+
+
+
+
+
+
 
 
 
