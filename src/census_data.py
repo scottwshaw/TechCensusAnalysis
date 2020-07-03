@@ -64,13 +64,6 @@ def data_from_google_sheet(sheet_url):
     tslvec = np.vectorize(to_short_labels)
     return pandas.DataFrame(data=data[1:],columns=tslvec(data[0]))
 
-
-def plot_histogram(series):
-    # Make default histogram of sepal length
-    # sns.distplot(series, bins=5)
-    # plt.xlim(-3,3)
-    plt.show()
-
 def expand_results_by_team_size(results,team_sizes):
     expanded = []
     for (result,size) in zip(results,team_sizes):
@@ -81,17 +74,20 @@ def box_plot(results):
     sns.boxplot(data=results, orient="h")
     plt.show()
 
-def box_plot_weighted(results, team_sizes, xlabels):
+def expand_frame_by_team_size(results, team_sizes):
     expanded_results = pandas.DataFrame()
-    # team_sizes.iloc[2] = 1 # total hack
     for column in results.columns:
         expanded_results[column] = expand_results_by_team_size(results[column].tolist(),team_sizes)
+    return expanded_results
+
+def box_plot_weighted(results, team_sizes, xlabels):
+    expanded_results = expand_frame_by_team_size(results, team_sizes)
     plt.figure(figsize=[11,5])
     sns.boxplot(data=expanded_results, orient="h")
     plt.xticks([-2, 0, 2], xlabels)
     plt.show()
 
-def chars_defaults_correlation(chars, defaults):
+def chars_defaults_correlation_plot(chars, defaults):
     combined_frame = pandas.concat([chars, defaults],axis=1)
     # Generate a mask for the upper triangle
     corr = combined_frame.corr()
@@ -101,16 +97,6 @@ def chars_defaults_correlation(chars, defaults):
     sns.heatmap(corr, cmap=cmap, mask=mask)
     plt.subplots_adjust(left=.2, bottom=.26, right=None, top=None, wspace=None, hspace=None)
     plt.show()
-
-
-sheet_url = 'https://docs.google.com/spreadsheets/d/136TnM1O6hNY7kGLgTcmMUwbdJ6UQF1pglQuNbny_pYQ/edit?usp=sharing'
-d = data_from_google_sheet(sheet_url)
-charsf = d.iloc[:,10:17].applymap(lambda x: chars_to_num[x])
-sensible_defaults = d.iloc[:,18:26].applymap(lambda x: defaults_to_num[x])
-# box_plot_weighted(charsf, d.iloc[:,4], ['strongly disagree','neither agree nor disagree', 'strongly agree'])
-chars_defaults_correlation(charsf, sensible_defaults)
-box_plot_weighted(charsf, d['twers'], ['strongly disagree','neither agree nor disagree', 'strongly agree'])
-box_plot_weighted(sensible_defaults, d['twers'], ['Not applied','Partially applied', 'Fully applied'])
 
 
 
