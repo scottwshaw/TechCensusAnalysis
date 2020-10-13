@@ -11,13 +11,14 @@ defaults_to_num = {'1. Not applied':-2, '2':-1, '3. Partially applied':0, '4':1,
 def to_short_labels(long_label):
     short_labels = {
         'Timestamp':'time', 
-        'Email Address':'email', 
+        'Username':'username', 
         'Account':'account', 
         'Team':'team', 
         'Number of TWers actively developing code':'twers',
         'Number of non-TW developers actively developing code':'nontwers', 
         'City':'city', 
         'What type of engagement is this?':'type',
+        'How technically complex would you say this project is?':'complexity',
         'How long has this team been together (project duration)':'duration_to_date',
         'How long do you anticipate this project to last?':'future_duration',
         ' [We have influence over the technical decisions on our project]':'project_influence',
@@ -49,9 +50,11 @@ def to_short_labels(long_label):
         'Programming Language':'',
         'Storage':'',
         'Persistence':'',
+        'Observability':'',
         'Logging/Monitoring':'',
         'Cloud Platform':'',
         'Provisioning and Deployment':'',
+        'Serverless Stuff':'serverless',
         'Container hosting':'',
         'Miscellaneous':''}
     return short_labels[long_label]
@@ -64,9 +67,9 @@ def data_from_google_sheet(sheet_url):
     tslvec = np.vectorize(to_short_labels)
     return pandas.DataFrame(data=data[1:],columns=tslvec(data[0]))
 
-def expand_results_by_team_size(results,team_sizes):
+def expand_results_by_weights(results,weightss):
     expanded = []
-    for (result,size) in zip(results,team_sizes):
+    for (result,size) in zip(results,weightss):
         expanded = expanded + [result] * int(float(size))
     return expanded
 
@@ -74,17 +77,22 @@ def box_plot(results):
     sns.boxplot(data=results, orient="h")
     plt.show()
 
-def expand_frame_by_team_size(results, team_sizes):
+def expand_frame_by_weights(results, weightss):
     expanded_results = pandas.DataFrame()
     for column in results.columns:
-        expanded_results[column] = expand_results_by_team_size(results[column].tolist(),team_sizes)
+        expanded_results[column] = expand_results_by_weights(results[column].tolist(),weightss)
     return expanded_results
 
-def box_plot_weighted(results, team_sizes, xlabels):
-    expanded_results = expand_frame_by_team_size(results, team_sizes)
+def box_plot_weighted(results, weightss, xlabels):
+    expanded_results = expand_frame_by_weights(results, weightss)
     plt.figure(figsize=[11,5])
     sns.boxplot(data=expanded_results, orient="h")
     plt.xticks([-2, 0, 2], xlabels)
+    plt.show()
+
+def histogram_team_compositions(team_sizes):
+    expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
+    sns.histplot(data=expanded_data['twers'].apply(int), kde=True)
     plt.show()
 
 def chars_defaults_correlation_plot(chars, defaults):
