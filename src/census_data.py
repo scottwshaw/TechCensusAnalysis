@@ -92,7 +92,10 @@ def box_plot_weighted(results, weightss, xlabels):
 
 def histogram_team_compositions(team_sizes):
     expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
-    sns.histplot(data=expanded_data['twers'].apply(int), kde=True)
+    sns.histplot(data=expanded_data['twers'].apply(int), kde=True).set(xlabel='number of TW coders on the team',ylabel='total number of TWers')
+    plt.show() 
+    ratio = expanded_data['nontwers'].apply(int)/expanded_data['twers'].apply(int)
+    sns.histplot(data=ratio, kde=True).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
     plt.show()
 
 def chars_defaults_correlation_plot(chars, defaults):
@@ -105,6 +108,7 @@ def chars_defaults_correlation_plot(chars, defaults):
     sns.heatmap(corr, cmap=cmap, mask=mask)
     plt.subplots_adjust(left=.2, bottom=.26, right=None, top=None, wspace=None, hspace=None)
     plt.show()
+
 
 
 
