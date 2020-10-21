@@ -1,8 +1,7 @@
 import gspread
 import numpy as np
 import pandas as pandas
-import seaborn as sns
-import matplotlib.pyplot as plt
+import plotly.express as px
 
 chars_to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagree':0, '4':1, '5. Strongly agree':2, '':0}
 defaults_to_num = {'1. Not applied':-2, '2':-1, '3. Partially applied':0, '4':1, '5. Fully applied':2, '':0}
@@ -44,17 +43,17 @@ def to_short_labels(long_label):
         'Frontend Framework':'frontend_framework',
         'Version Control':'source_control',
         'Artefacts':'artefact_repo',
-        'CI/CD':'',
-        'Programming Language':'',
-        'Storage':'',
-        'Persistence':'',
-        'Observability':'',
-        'Logging/Monitoring':'',
-        'Cloud Platform':'',
-        'Provisioning and Deployment':'',
+        'CI/CD':'build_tool',
+        'Programming Language':'language',
+        'Storage':'storage',
+        'Persistence':'persistence',
+        'Observability':'observability',
+        'Logging/Monitoring':'logging',
+        'Cloud Platform':'cloud',
+        'Provisioning and Deployment':'provisioning',
         'Serverless Stuff':'serverless',
-        'Container hosting':'',
-        'Miscellaneous':''}
+        'Container hosting':'containers',
+        'Miscellaneous':'misc'}
     return short_labels[long_label]
 
 def data_from_google_sheet(sheet_url):
@@ -76,60 +75,50 @@ def decompose_and_expand_by_weights(results,weights):
     for (compound_result,size) in zip(results,weights):
         results_list = compound_result.split(';')
         for(result) in results_list:
+            print(result)
             expanded = expanded + [result] * int(float(size))
     return expanded
 
-def box_plot(results):
-    sns.boxplot(data=results, orient="h")
-    plt.show()
+# def box_plot(results):
+#     sns.boxplot(data=results, orient="h")
+#     plt.show()
 
-def expand_frame_by_weights(results, weights):
+def expand_frame_by_weights(results, weightss):
     expanded_results = pandas.DataFrame()
     for column in results.columns:
-        expanded_results[column] = expand_results_by_weights(results[column].tolist(),weights)
+        expanded_results[column] = expand_results_by_weights(results[column].tolist(),weightss)
     return expanded_results
 
-def box_plot_weighted(results, weights, xlabels):
-    expanded_results = expand_frame_by_weights(results, weights)
-    plt.figure(figsize=[11,5])
-    sns.boxplot(data=expanded_results, orient="h")
-    plt.xticks([-2, 0, 2], xlabels)
-    plt.show()
+def box_plot_weighted(results, weightss, xlabels):
+    expanded_results = expand_frame_by_weights(results, weightss)
+    fig = px.box(expanded_results)
+    fig.show()
 
-def histogram_weighted_tech(results, weights):
-    for column in results.columns:   
-        expanded_results = decompose_and_expand_by_weights(results[column], weights)
-        unique_values, counts = np.unique(expanded_results, return_counts=True) 
-        a = pandas.DataFrame(list(zip(unique_values, counts)), columns=['Value','Count'])
-        a.sort_values(by='Count',ascending=False).plot.barh(y='Count',x='Value')
-        plt.show()
+# def histogram_weighted_team_compositions(team_sizes):
+#     expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
+#     sns.histplot(data=expanded_data['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of TWers')
+#     plt.show() 
+#     ratio = expanded_data['nontwers'].apply(int)/expanded_data['twers'].apply(int)
+#     sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
+#     plt.show()
 
+# def histogram_unweighted_team_compositions(team_sizes):
+#     sns.histplot(data=team_sizes['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of teams')
+#     plt.show() 
+#     ratio = team_sizes['nontwers'].apply(int)/team_sizes['twers'].apply(int)
+#     sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of teams')  
+#     plt.show()
 
-def histogram_weighted_team_compositions(team_sizes):
-    expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
-    sns.histplot(data=expanded_data['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of TWers')
-    plt.show() 
-    ratio = expanded_data['nontwers'].apply(int)/expanded_data['twers'].apply(int)
-    sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
-    plt.show()
-
-def histogram_unweighted_team_compositions(team_sizes):
-    sns.histplot(data=team_sizes['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of teams')
-    plt.show() 
-    ratio = team_sizes['nontwers'].apply(int)/team_sizes['twers'].apply(int)
-    sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of teams')  
-    plt.show()
-
-def chars_defaults_correlation_plot(chars, defaults):
-    combined_frame = pandas.concat([chars, defaults],axis=1)
-    # Generate a mask for the upper triangle
-    corr = combined_frame.corr()
-    cmap = sns.diverging_palette(220, 10, as_cmap=True)
-    mask = np.triu(np.ones_like(corr, dtype=np.bool))
-    plt.figure(figsize=[9,8])  
-    sns.heatmap(corr, cmap=cmap, mask=mask)
-    plt.subplots_adjust(left=.2, bottom=.26, right=None, top=None, wspace=None, hspace=None)
-    plt.show()
+# def chars_defaults_correlation_plot(chars, defaults):
+#     combined_frame = pandas.concat([chars, defaults],axis=1)
+#     # Generate a mask for the upper triangle
+#     corr = combined_frame.corr()
+#     cmap = sns.diverging_palette(220, 10, as_cmap=True)
+#     mask = np.triu(np.ones_like(corr, dtype=np.bool))
+#     plt.figure(figsize=[9,8])  
+#     sns.heatmap(corr, cmap=cmap, mask=mask)
+#     plt.subplots_adjust(left=.2, bottom=.26, right=None, top=None, wspace=None, hspace=None)
+#     plt.show()
 
 
 
