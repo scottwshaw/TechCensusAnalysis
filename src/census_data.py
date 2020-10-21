@@ -1,11 +1,30 @@
 import gspread
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pandas
+import re
 import seaborn as sns
-import matplotlib.pyplot as plt
+
 
 chars_to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagree':0, '4':1, '5. Strongly agree':2, '':0}
 defaults_to_num = {'1. Not applied':-2, '2':-1, '3. Partially applied':0, '4':1, '5. Fully applied':2, '':0}
+def synonym(word):
+    synonyms = {
+        'Gitlab':'GitLab',
+        'TypeScript':'Typescript',
+        'Azure devops':'Azure DevOps',
+        'Self-hosted Gitlab': 'GitLab',
+        'Gitlab Pipelines': 'GitLab',
+        'GitLab CI':'GitLab',
+        'BitBucket':'Bitbucket',
+        'Bitbucket Pipelines':'Bitbucket',
+        'BitBucket Pipeline':'Bitbucket',
+        'Golang':'Go lang',
+        'GoLang':'Go lang',
+        'FireStore':'FireBase'
+    }
+    return synonyms.get(word,word)
+
 def to_short_labels(long_label):
     short_labels = {
         'Timestamp':'time', 
@@ -44,17 +63,17 @@ def to_short_labels(long_label):
         'Frontend Framework':'frontend_framework',
         'Version Control':'source_control',
         'Artefacts':'artefact_repo',
-        'CI/CD':'',
-        'Programming Language':'',
-        'Storage':'',
-        'Persistence':'',
-        'Observability':'',
-        'Logging/Monitoring':'',
-        'Cloud Platform':'',
-        'Provisioning and Deployment':'',
+        'CI/CD':'build_server',
+        'Programming Language':'language',
+        'Storage':'storage',
+        'Persistence':'persistence',
+        'Observability':'observability',
+        'Logging/Monitoring':'logging',
+        'Cloud Platform':'cloud_vendor',
+        'Provisioning and Deployment':'infrastructure_provisioning',
         'Serverless Stuff':'serverless',
-        'Container hosting':'',
-        'Miscellaneous':''}
+        'Container hosting':'container_hosting',
+        'Miscellaneous':'misc'}
     return short_labels[long_label]
 
 def data_from_google_sheet(sheet_url):
@@ -74,7 +93,7 @@ def expand_results_by_weights(results,weightss):
 def decompose_and_expand_by_weights(results,weights):
     expanded = []
     for (compound_result,size) in zip(results,weights):
-        results_list = compound_result.split(';')
+        results_list = re.split('; |;|, |,', compound_result.strip())
         for(result) in results_list:
             expanded = expanded + [result] * int(float(size))
     return expanded
@@ -97,13 +116,15 @@ def box_plot_weighted(results, weights, xlabels):
     plt.show()
 
 def histogram_weighted_tech(results, weights):
-    for column in results.columns:   
-        expanded_results = decompose_and_expand_by_weights(results[column], weights)
+    # replace blanks with NA to be dropped later
+    clean_results = results.applymap(lambda x: synonym(x)).applymap(lambda x: x if x != '' else pandas.NA)
+    for column in clean_results.columns:
+        expanded_results = decompose_and_expand_by_weights(clean_results[column].dropna(), weights)
         unique_values, counts = np.unique(expanded_results, return_counts=True) 
         a = pandas.DataFrame(list(zip(unique_values, counts)), columns=['Value','Count'])
-        a.sort_values(by='Count',ascending=False).plot.barh(y='Count',x='Value')
+        a.sort_values(by='Count',ascending=True).plot.barh(y='Count',x='Value')
+        plt.title(column)
         plt.show()
-
 
 def histogram_weighted_team_compositions(team_sizes):
     expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
