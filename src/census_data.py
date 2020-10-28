@@ -6,20 +6,24 @@ import seaborn as sns
 
 def synonym(word):
     synonyms = {
-        'Gitlab':'GitLab',
         'TypeScript':'Typescript',
         'Azure devops':'Azure DevOps',
         'Self-hosted Gitlab': 'GitLab',
         'Gitlab Pipelines': 'GitLab',
         'GitLab CI':'GitLab',
+        'Gitlab':'GitLab',
         'BitBucket':'Bitbucket',
         'Bitbucket Pipelines':'Bitbucket',
         'BitBucket Pipeline':'Bitbucket',
         'Golang':'Go lang',
         'GoLang':'Go lang',
-        'FireStore':'FireBase'
+        'FireStore':'FireBase',
+        'cypress':'Cypress',
+        'nodejs':'Node.js',
+        '':'No response'
     }
-    return synonyms.get(word,word)
+    
+    return synonyms.get(word.strip(),word)
 
 def expand_results_by_weights(results,weightss):
     expanded = []
@@ -34,10 +38,6 @@ def decompose_and_expand_by_weights(results,weights):
         for(result) in results_list:
             expanded = expanded + [result] * int(float(size))
     return expanded
-
-def box_plot(results):
-    sns.boxplot(data=results, orient="h")
-    plt.show()
 
 def expand_frame_by_weights(results, weights):
     expanded_results = pandas.DataFrame()
@@ -54,10 +54,10 @@ def box_plot_weighted(results, weights, xlabels):
 
 def histogram_weighted_tech(results, weights):
     # replace blanks with NA to be dropped later
-    clean_results = results.applymap(lambda x: synonym(x)).applymap(lambda x: x if x != '' else pandas.NA)
+    clean_results = results.applymap(lambda x: synonym(x))
     for column in clean_results.columns:
-        expanded_results = decompose_and_expand_by_weights(clean_results[column].dropna(), weights)
-        unique_values, counts = np.unique(expanded_results, return_counts=True) 
+        expanded_results = decompose_and_expand_by_weights(clean_results[column], weights)
+        unique_values, counts = np.unique(expanded_results, return_counts=True)
         a = pandas.DataFrame(list(zip(unique_values, counts)), columns=['Value','Count'])
         a.sort_values(by='Count',ascending=True).plot.barh(y='Count',x='Value')
         plt.title(column)
@@ -71,6 +71,12 @@ def histogram_weighted_team_compositions(team_sizes):
     sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
     plt.show()
 
+def histogram_weighted_enablement_series(enablement_series, weights):
+    expanded_series =  expand_results_by_weights(enablement_series, weights)
+    print(expanded_series)
+    sns.histplot(data=list(map(int,expanded_series))).set(xlabel='degree of enablement',ylabel='number of TWers')
+    plt.show()
+
 def histogram_unweighted_team_compositions(team_sizes):
     sns.histplot(data=team_sizes['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of teams')
     plt.show() 
@@ -79,7 +85,8 @@ def histogram_unweighted_team_compositions(team_sizes):
     plt.show()
 
 def chars_defaults_correlation_plot(chars, defaults):
-    combined_frame = pandas.concat([chars, defaults],axis=1)
+    # Don't know if the normalisation step is necessary or if corr() does that anyway.  Just in case.
+    combined_frame = pandas.concat([chars, defaults],axis=1).apply(lambda x: (x-x.mean())/(x.max()-x.min()), axis=0)
     # Generate a mask for the upper triangle
     corr = combined_frame.corr()
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
@@ -88,6 +95,18 @@ def chars_defaults_correlation_plot(chars, defaults):
     sns.heatmap(corr, cmap=cmap, mask=mask)
     plt.subplots_adjust(left=.2, bottom=.26, right=None, top=None, wspace=None, hspace=None)
     plt.show()
+
+def print_dora_metrics(metrics, weights):
+    expanded_metrics = expand_frame_by_weights(metrics, weights)
+    for column in metrics.columns:
+        category, count = np.unique(expanded_metrics[column], return_counts=True)
+        total = sum(count)
+        normed_count = count/total
+        print("\n")
+        print(column)
+        for x in zip(category,normed_count):
+            print(x)
+
 
 
 
