@@ -6,10 +6,16 @@ def to_short_labels(long_label):
     short_labels = {
         'Timestamp':'time', 
         'Username':'username', 
-        'Account':'account', 
+        'Email Address':'email',  
+        'Account':'account',
+        'Account Name':'account', 
         'Team':'team', 
+        'Team name or designation within the account':'Team',
         'Number of TWers actively developing code':'twers',
+        'Number of Australian TWers actively developing code':'twers',
         'Number of non-TW developers actively developing code':'nontwers', 
+        'Are there ThoughtWorks developers outside Australia working on this team?':'distributed',
+        'If this is a distributed project, how many offshore developers are there?':'numoffshore',
         'City':'city', 
         'What type of engagement is this?':'type',
         'How technically complex would you say this project is?':'complexity',
@@ -32,6 +38,7 @@ def to_short_labels(long_label):
         'Please select all of the following practices that are followed on your team  (See https://docs.google.com/presentation/d/1-XEAso777d9Y6KJqLmesF5esMk9TFJUzEaDEheyF8hQ/edit?usp=sharing for a deeper explanation of these practices) [Quality and debt effectively managed]':'debt_managed',
         'Please select all of the following practices that are followed on your team  (See https://docs.google.com/presentation/d/1-XEAso777d9Y6KJqLmesF5esMk9TFJUzEaDEheyF8hQ/edit?usp=sharing for a deeper explanation of these practices) [Done means production-ready]':'done_means_prod',
         'How long does it take to go from code commit to code successfully running in production?':'cycle_time',
+        'How long does it take to go from code commit to code successfully running in production? ':'cycle_time',
         'How often do we deploy code?':'deploy_freq',
         'What percentage of changes either result in degraded service or subsequently require remediation (e.g., lead to service impairment or outage, require a hotfix, a rollback, a fix-forward, or a patch)?':'failure_rate',
         'How long does it generally take to restore service when a service incident occurs(e.g. unplanned outage, service impairment)?':'time_to_restore',
@@ -44,8 +51,11 @@ def to_short_labels(long_label):
         'Programming Language':'language',
         'Storage':'storage',
         'Persistence':'persistence',
+        'Persistence (select all that apply.  e.g. if you\'re using RDS Postgres version, select both PostgreSQL and RDS)':'persistence',
         'Observability':'observability',
         'Logging/Monitoring':'logging',
+        'Messaging':'messaging',
+        'Identity':'identity',
         'Cloud Platform':'cloud_vendor',
         'Provisioning and Deployment':'infrastructure_provisioning',
         'Serverless Stuff':'serverless',
@@ -57,9 +67,11 @@ chars_to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagre
 defaults_to_num = {'1. Not applied':-2, '2':-1, '3. Partially applied':0, '4':1, '5. Fully applied':2, '':0}
 
 
-def data_from_google_sheet(sheet_url):
+
+
+def data_from_google_sheet(SHEET_URL):
     gc = gspread.oauth()
-    census_data = gc.open_by_url(sheet_url)
+    census_data = gc.open_by_url(SHEET_URL)
     sheet = census_data.get_worksheet(0)
     data = sheet.get_all_values()
     tslvec = np.vectorize(to_short_labels)
