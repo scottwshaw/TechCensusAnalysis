@@ -14,7 +14,8 @@ import datetime as dt
 # TEAM_COMPOSITION_COLUMNS = slice(4,6)
 # 2021Q1
 DATA_SHEET_URL= 'https://docs.google.com/spreadsheets/d/1WT0RoIAyPoC54iewnqirUKJMcMHHTuRBxi1L7k-NPH0/edit?usp=sharing'
-HISTORY_SHEET_URL= 'https://docs.google.com/spreadsheets/d/1w_KmO4-Krhi5vzTFYT3z69pmSJUE8l2nfbh5imZpPuc/edit?usp=sharing'
+DEFAULT_HISTORY_SHEET_URL= 'https://docs.google.com/spreadsheets/d/1w_KmO4-Krhi5vzTFYT3z69pmSJUE8l2nfbh5imZpPuc/edit?usp=sharing'
+CHAR_HISTORY_SHEET_URL = 'https://docs.google.com/spreadsheets/d/1JE2fQdN_BEcSftdnX3IjxA_26K5ITfeyIVA4dKTWXCQ/edit?usp=sharing'
 CHARACTERISTICS_COLUMNS = slice(12,19)
 SENSIBLE_DEFAULTS_COLUMNS = slice(20,28)
 TECH_STACK_COLUMNS = slice(33,49)
@@ -32,5 +33,7 @@ TEAM_COMPOSITION_COLUMNS = [4,7]
 # cd.box_plot_weighted(sensible_defaults, d['twers'], ['Not applied','Partially applied', 'Fully applied'])
 # cd.histogram_weighted_tech(tech, d['twers'])
 # cd.print_dora_metrics(d.iloc[:,DORA_COLUMNS],d['twers'])
-h = rs.history_from_google_sheet(HISTORY_SHEET_URL)
-cd.plot_default_history(h)
+dh = rs.history_from_google_sheet(DEFAULT_HISTORY_SHEET_URL)
+cd.plot_history_regression(dh, "Sensible Default")
+ch = rs.history_from_google_sheet(CHAR_HISTORY_SHEET_URL)
+cd.plot_history_regression(ch, "Project Characteristic")

@@ -106,12 +106,14 @@ def print_dora_metrics(metrics, weights):
         for x in zip(category,normed_count):
             print(x)
 
-def plot_default_history(defaults):
+def plot_history_regression(defaults, facet_name):
     print(defaults.info())
     defaults["Date"] = defaults.index
-    melted_df = pandas.melt(defaults, id_vars="Date", var_name="sensible default", value_name="score")
+    melted_df = pandas.melt(defaults, id_vars="Date", var_name=facet_name, value_name="score")
     print(melted_df)
-    sns.relplot(x="Date", y="score", data=melted_df, kind="scatter", hue="sensible default")
+    melted_df["score"] = melted_df["score"].apply(lambda x: float(x))
+    melted_df["Date"] = melted_df["Date"].apply(lambda x: x.timestamp())
+    sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=None)
     plt.show()
 
 
