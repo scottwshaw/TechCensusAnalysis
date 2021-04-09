@@ -114,6 +114,7 @@ def plot_history_regression(defaults, facet_name):
     melted_df["score"] = melted_df["score"].apply(lambda x: float(x))
     melted_df["Date"] = melted_df["Date"].apply(lambda x: x.timestamp())
     sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=None)
+    plt.xticks(np.unique(melted_df["Date"]), np.datetime_as_string(defaults.index, unit='M'))
     plt.show()
 
 
