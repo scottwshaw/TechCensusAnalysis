@@ -87,10 +87,9 @@ def histogram_unweighted_team_compositions(team_sizes):
 def chars_defaults_correlation_plot(chars, defaults):
     # Don't know if the normalisation step is necessary or if corr() does that anyway.  Just in case.
     combined_frame = pandas.concat([chars, defaults],axis=1).apply(lambda x: (x-x.mean())/(x.max()-x.min()), axis=0)
-    # Generate a mask for the upper triangle
     corr = combined_frame.corr()
     cmap = sns.diverging_palette(220, 10, as_cmap=True)
-    mask = np.triu(np.ones_like(corr, dtype=np.bool))
+    mask = np.triu(np.ones_like(corr, dtype=np.bool))     # Generate a mask for the upper triangle
     plt.figure(figsize=[9,8])  
     sns.heatmap(corr, cmap=cmap, mask=mask)
     plt.subplots_adjust(left=.2, bottom=.26, right=None, top=None, wspace=None, hspace=None)
@@ -106,6 +105,15 @@ def print_dora_metrics(metrics, weights):
         print(column)
         for x in zip(category,normed_count):
             print(x)
+
+def plot_default_history(defaults):
+    print(defaults.info())
+    defaults["Date"] = defaults.index
+    melted_df = pandas.melt(defaults, id_vars="Date", var_name="sensible default", value_name="score")
+    print(melted_df)
+    sns.relplot(x="Date", y="score", data=melted_df, kind="scatter", hue="sensible default")
+    plt.show()
+
 
 
 

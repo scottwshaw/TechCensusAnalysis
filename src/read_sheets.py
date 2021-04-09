@@ -1,6 +1,7 @@
 import gspread
 import numpy as np
 import pandas as pd
+import datetime as dt
 
 def to_short_labels(long_label):
     short_labels = {
@@ -66,13 +67,23 @@ def to_short_labels(long_label):
 chars_to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagree':0, '4':1, '5. Strongly agree':2, '':0}
 defaults_to_num = {'1. Not applied':-2, '2':-1, '3. Partially applied':0, '4':1, '5. Fully applied':2, '':0}
 
-
-
-
-def data_from_google_sheet(SHEET_URL):
+def data_from_google_sheet(sheet_url):
     gc = gspread.oauth()
-    census_data = gc.open_by_url(SHEET_URL)
+    census_data = gc.open_by_url(sheet_url)
     sheet = census_data.get_worksheet(0)
     data = sheet.get_all_values()
     tslvec = np.vectorize(to_short_labels)
     return pd.DataFrame(data=data[1:],columns=tslvec(data[0]))
+
+def history_from_google_sheet(sheet_url):
+    gc = gspread.oauth()
+    history_data = gc.open_by_url(sheet_url)
+    sheet = history_data.get_worksheet(0)
+    data = sheet.get_all_values()
+    dates = np.transpose(data)[0][1:]
+    tdt = np.vectorize(pd.to_datetime)
+    timetofloat = np.vectorize(lambda d: d.timestamp())
+    df = pd.DataFrame(data=data[1:],index=tdt(dates,dayfirst=True),columns=data[0])[data[0][1:]]
+    # df = pd.DataFrame(data=data[1:], columns=data[0])
+    # df["Date"] = timetofloat(tdt(dates,dayfirst=True))
+    return df
