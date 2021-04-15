@@ -22,8 +22,43 @@ def synonym(word):
         'nodejs':'Node.js',
         '':'No response'
     }
-    
     return synonyms.get(word.strip(),word)
+    
+def map_dora_category(metric, category):
+    map = {
+        'cycle_time': {
+            'Less than one hour': 'Elite',
+            'Less than one day': 'Elite',
+            'Between one day and one week': 'High',
+            'Between one week and one month': 'Medium',
+            'Between one month and six months': 'Low',
+            'More than six months': 'Low',
+            'We aren\'t yet in production': 'N/A'},
+        'deploy_freq': {
+            'On demand(multiple deploys per day)': 'Elite',
+            'Between once per hour and once per day': 'Elite',
+            'Between once per day and once per week': 'High',
+            'Between once per week and once per month': 'Medium',
+            'Between once per month and once every six months': 'Low',
+            'Fewer than once every six months': 'Low',
+            'We aren\'t yet in production': 'N/A'},
+        'failure_rate': {
+            'Less than 15%': 'elite-high-med',
+            '16 - 30%': '',
+            '31-45%': '',
+            '45 - 60%': 'Low',
+            'More than 60%': '',
+            'We aren\'t yet in production': 'N/A'},
+        'time_to_restore': {
+            'Less than one hour': 'Elite',
+            'Less than one day': 'high-med',
+            'Between one day and one week': '' ,
+            'Between one week and one month': 'Low',
+            'Between one month and six months': '',
+            'More than six months': '',
+            'We aren\'t yet in production': 'N/A'}}
+    return map.get(metric, {}).get(category, '')
+
 
 def expand_results_by_weights(results,weightss):
     expanded = []
@@ -98,6 +133,7 @@ def chars_defaults_correlation_plot(chars, defaults):
 def print_dora_metrics(metrics, weights):
     expanded_metrics = expand_frame_by_weights(metrics, weights)
     for column in metrics.columns:
+        expanded_metrics[column] = expanded_metrics[column].apply(lambda x: map_dora_category(column,x))
         category, count = np.unique(expanded_metrics[column], return_counts=True)
         total = sum(count)
         normed_count = count/total
