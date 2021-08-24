@@ -61,7 +61,8 @@ def to_short_labels(long_label):
         'Provisioning and Deployment':'infrastructure_provisioning',
         'Serverless Stuff':'serverless',
         'Container hosting':'container_hosting',
-        'Miscellaneous':'misc'}
+        'Miscellaneous':'misc',
+        'Data Tools and Platforms':'data_tools'}
     return short_labels[long_label]
 
 chars_to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagree':0, '4':1, '5. Strongly agree':2, '':0}

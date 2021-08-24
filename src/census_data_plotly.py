@@ -53,7 +53,8 @@ def to_short_labels(long_label):
         'Provisioning and Deployment':'provisioning',
         'Serverless Stuff':'serverless',
         'Container hosting':'containers',
-        'Miscellaneous':'misc'}
+        'Miscellaneous':'misc',
+        'Data Tools and Platforms':'data_tools'}
     return short_labels[long_label]
 
 def data_from_google_sheet(sheet_url):
