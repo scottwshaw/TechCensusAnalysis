@@ -20,7 +20,9 @@ def synonym(word):
         'FireStore':'FireBase',
         'cypress':'Cypress',
         'nodejs':'Node.js',
-        '':'No response'
+        '':'No response',
+        '.':'No response',
+        'terraform':'Terraform'
     }
     return synonyms.get(word.strip(),word)
     
@@ -149,7 +151,8 @@ def plot_history_regression(defaults, facet_name):
     print(melted_df)
     melted_df["score"] = melted_df["score"].apply(lambda x: float(x))
     melted_df["Date"] = melted_df["Date"].apply(lambda x: x.timestamp())
-    sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=None)
+    # sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=None)
+    sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=30)
     plt.xticks(np.unique(melted_df["Date"]), np.datetime_as_string(defaults.index, unit='M'))
     plt.show()
 
