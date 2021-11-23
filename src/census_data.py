@@ -61,7 +61,6 @@ def map_dora_category(metric, category):
             'We aren\'t yet in production': 'N/A'}}
     return map.get(metric, {}).get(category, '')
 
-
 def expand_results_by_weights(results,weightss):
     expanded = []
     for (result,size) in zip(results,weightss):
@@ -156,6 +155,12 @@ def plot_history_regression(defaults, facet_name):
     plt.xticks(np.unique(melted_df["Date"]), np.datetime_as_string(defaults.index, unit='M'))
     plt.show()
 
+def weighted_means(team_sizes, defaults):
+    fdef = defaults.astype(float)
+    fts = team_sizes.astype(float)
+    results = fdef.T.dot(fts).div(fts.sum())
+    return results
+    
 
 
 

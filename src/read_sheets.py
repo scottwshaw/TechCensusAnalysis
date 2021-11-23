@@ -62,6 +62,7 @@ def to_short_labels(long_label):
         'Serverless Stuff':'serverless',
         'Container hosting':'container_hosting',
         'Miscellaneous':'misc',
+        'Testing Tools':'testing_tools', 
         'Data Tools and Platforms':'data_tools'}
     return short_labels[long_label]
 
