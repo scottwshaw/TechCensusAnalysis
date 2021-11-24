@@ -103,7 +103,7 @@ def histogram_weighted_team_compositions(team_sizes):
     expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
     sns.histplot(data=expanded_data['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of TWers')
     plt.show() 
-    ratio = expanded_data['nontwers'].apply(int)/expanded_data['twers'].apply(int)
+    ratio = pandas.to_numeric(expanded_data['nontwers']).round().astype(int)/expanded_data['twers'].astype(int)
     sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
     plt.show()
 
@@ -114,9 +114,9 @@ def histogram_weighted_enablement_series(enablement_series, weights):
     plt.show()
 
 def histogram_unweighted_team_compositions(team_sizes):
-    sns.histplot(data=team_sizes['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of teams')
+    sns.histplot(data=team_sizes['twers'].astype(int)).set(xlabel='number of TW coders on the team',ylabel='number of teams')
     plt.show() 
-    ratio = team_sizes['nontwers'].apply(int)/team_sizes['twers'].apply(int)
+    ratio = pandas.to_numeric(team_sizes['nontwers']).round().astype(int)/pandas.to_numeric(team_sizes['twers']).round().astype(int)
     sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of teams')  
     plt.show()
 
@@ -144,15 +144,23 @@ def print_dora_metrics(metrics, weights):
             print(x)
 
 def plot_history_regression(defaults, facet_name):
-    print(defaults.info())
     defaults["Date"] = defaults.index
     melted_df = pandas.melt(defaults, id_vars="Date", var_name=facet_name, value_name="score")
-    print(melted_df)
-    melted_df["score"] = melted_df["score"].apply(lambda x: float(x))
+    melted_df["score"] = melted_df["score"].astype(float)
     melted_df["Date"] = melted_df["Date"].apply(lambda x: x.timestamp())
-    # sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=None)
     sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=30)
     plt.xticks(np.unique(melted_df["Date"]), np.datetime_as_string(defaults.index, unit='M'))
+    plt.show()
+
+def plot_history_regression_since(defaults, facet_name, earliest_date_string):
+    earliest_date = pandas.Timestamp(earliest_date_string)
+    defaults["Date"] = defaults.index
+    defaults_since = defaults.loc[defaults["Date"] >= earliest_date]
+    melted_df = pandas.melt(defaults_since, id_vars="Date", var_name=facet_name, value_name="score")
+    melted_df["score"] = melted_df["score"].astype(float)
+    melted_df["Date"] = melted_df["Date"].apply(lambda x: x.timestamp())
+    sns.lmplot(x="Date", y="score", data=melted_df, hue=facet_name, ci=30)
+    plt.xticks(np.unique(melted_df["Date"]), np.datetime_as_string(defaults_since.index, unit='M'))
     plt.show()
 
 def weighted_means(team_sizes, defaults):
@@ -160,11 +168,6 @@ def weighted_means(team_sizes, defaults):
     fts = team_sizes.astype(float)
     results = fdef.T.dot(fts).div(fts.sum())
     return results
-    
-
-
-
-
 
 
 

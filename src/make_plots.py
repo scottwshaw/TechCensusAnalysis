@@ -1,6 +1,6 @@
 import census_data as cd
 import read_sheets as rs
-import datetime as dt
+import pandas as pd
 from config import *
 
 d = rs.data_from_google_sheet(DATA_SHEET_URL)
@@ -19,5 +19,7 @@ print(cd.weighted_means(d['twers'],sensible_defaults))
 print(cd.weighted_means(d['twers'],charsf))
 dh = rs.history_from_google_sheet(DEFAULT_HISTORY_SHEET_URL)
 cd.plot_history_regression(dh, "Sensible Default")
+cd.plot_history_regression_since(dh, "Sensible Default", "2021-01-01T12")
 ch = rs.history_from_google_sheet(CHAR_HISTORY_SHEET_URL)
 cd.plot_history_regression(ch, "Project Characteristic")
+cd.plot_history_regression_since(ch, "Project Characteristic","2021-01-01T12")
