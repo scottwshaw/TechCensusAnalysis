@@ -22,7 +22,13 @@ def synonym(word):
         'nodejs':'Node.js',
         '':'No response',
         '.':'No response',
-        'terraform':'Terraform'
+        'terraform':'Terraform',
+        'Migrating from AWS CodeCommit': 'AWS CodeCommit',
+        'Migrating from: AWS CodeCommit': 'AWS CodeCommit',
+        'aurora': 'Aurora',
+        'Aurora Serverless': 'Aurora',
+        'Aurora (nonserverless)': 'Aurora',
+        'postgres)': 'PostgreSQL'
     }
     return synonyms.get(word.strip(),word)
     
@@ -70,7 +76,8 @@ def expand_results_by_weights(results,weightss):
 def decompose_and_expand_by_weights(results,weights):
     expanded = []
     for (compound_result,size) in zip(results,weights):
-        results_list = re.split('; |;|, |,', compound_result.strip())
+        # results_list = map(lambda x: synonym(x), re.split('; |;|, |,', compound_result.strip()))
+        results_list = map(synonym, re.split('; |;|, |,', compound_result.strip()))
         for(result) in results_list:
             expanded = expanded + [result] * int(float(size))
     return expanded
@@ -90,7 +97,7 @@ def box_plot_weighted(results, weights, xlabels):
 
 def histogram_weighted_tech(results, weights):
     # replace blanks with NA to be dropped later
-    clean_results = results.applymap(lambda x: synonym(x))
+    clean_results = results.applymap(synonym)
     for column in clean_results.columns:
         expanded_results = decompose_and_expand_by_weights(clean_results[column], weights)
         unique_values, counts = np.unique(expanded_results, return_counts=True)
@@ -109,8 +116,14 @@ def histogram_weighted_team_compositions(team_sizes):
 
 def histogram_weighted_enablement_series(enablement_series, weights):
     expanded_series =  expand_results_by_weights(enablement_series, weights)
-    print(expanded_series)
     sns.histplot(data=list(map(int,expanded_series))).set(xlabel='degree of enablement',ylabel='number of TWers')
+    plt.show()
+
+def histogram_weighted_complexity_series(series, weights):
+    expanded_series =  expand_results_by_weights(series, weights)
+    sns.histplot(data=list(map(int,expanded_series))).set(xlabel='technical complexity',ylabel='number of TWers')
+    plt.xlim((1,10))
+    plt.xticks([1,3,5,7,10],["hello world in excel","3","5","7","apollo moon landing"])
     plt.show()
 
 def histogram_unweighted_team_compositions(team_sizes):
