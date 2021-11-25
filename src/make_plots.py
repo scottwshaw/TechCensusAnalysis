@@ -9,6 +9,7 @@ sensible_defaults = d.iloc[:,SENSIBLE_DEFAULTS_COLUMNS].applymap(lambda x: rs.de
 tech = d.iloc[:,TECH_STACK_COLUMNS].applymap(lambda x: str(x))
 cd.histogram_unweighted_team_compositions(d.iloc[:,TEAM_COMPOSITION_COLUMNS])
 cd.histogram_weighted_team_compositions(d.iloc[:,TEAM_COMPOSITION_COLUMNS])
+cd.histogram_offshore_ratio(d.iloc[:,TEAM_COMPOSITION_COLUMNS])
 cd.histogram_weighted_enablement_series(d['type'],d['twers'])
 cd.histogram_weighted_complexity_series(d['complexity'],d['twers'])
 cd.chars_defaults_correlation_plot(charsf, sensible_defaults)

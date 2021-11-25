@@ -41,6 +41,7 @@ def map_dora_category(metric, category):
             'Between one week and one month': 'Medium',
             'Between one month and six months': 'Low',
             'More than six months': 'Low',
+            '':'N/A',
             'We aren\'t yet in production': 'N/A'},
         'deploy_freq': {
             'On demand(multiple deploys per day)': 'Elite',
@@ -49,6 +50,7 @@ def map_dora_category(metric, category):
             'Between once per week and once per month': 'Medium',
             'Between once per month and once every six months': 'Low',
             'Fewer than once every six months': 'Low',
+            '':'N/A',
             'We aren\'t yet in production': 'N/A'},
         'failure_rate': {
             'Less than 15%': 'elite-high-med',
@@ -56,6 +58,7 @@ def map_dora_category(metric, category):
             '31-45%': '',
             '45 - 60%': 'Low',
             'More than 60%': '',
+            '':'N/A',
             'We aren\'t yet in production': 'N/A'},
         'time_to_restore': {
             'Less than one hour': 'Elite',
@@ -64,6 +67,7 @@ def map_dora_category(metric, category):
             'Between one week and one month': 'Low',
             'Between one month and six months': '',
             'More than six months': '',
+            '':'N/A',
             'We aren\'t yet in production': 'N/A'}}
     return map.get(metric, {}).get(category, '')
 
@@ -112,6 +116,15 @@ def histogram_weighted_team_compositions(team_sizes):
     plt.show() 
     ratio = pandas.to_numeric(expanded_data['nontwers']).round().astype(int)/expanded_data['twers'].astype(int)
     sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
+    plt.show()
+
+
+
+def histogram_offshore_ratio(team_sizes):
+    expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
+    expanded_data['numoffshore'] = expanded_data['numoffshore'].apply(lambda x: x if x else '0')
+    ratio = pandas.to_numeric(expanded_data['numoffshore']).round().astype(int)/expanded_data['twers'].astype(int)
+    sns.histplot(data=ratio).set(xlabel='ratio of offshore to onshore TW coders', ylabel='number of TWers')  
     plt.show()
 
 def histogram_weighted_enablement_series(enablement_series, weights):
