@@ -14,9 +14,9 @@ def to_short_labels(long_label):
         'Team name or designation within the account':'Team',
         'Number of TWers actively developing code':'twers',
         'Number of Australian TWers actively developing code':'twers',
-        'Number of non-TW developers actively developing code':'nontwers', 
+        'Number of non-TW developers actively developing code (Please answer in whole, positive integers only.  Round to nearest if necessary)':'nontwers', 
         'Are there ThoughtWorks developers outside Australia working on this team?':'distributed',
-        'If this is a distributed project, how many offshore developers are there?':'numoffshore',
+        'If this is a distributed project, how many offshore developers are there? (Please answer in whole, positive integers only.  Round to nearest if necessary)':'numoffshore',
         'City':'city', 
         'What type of engagement is this?':'type',
         'How technically complex would you say this project is?':'complexity',
@@ -63,7 +63,9 @@ def to_short_labels(long_label):
         'Container hosting':'container_hosting',
         'Miscellaneous':'misc',
         'Testing Tools':'testing_tools', 
-        'Data Tools and Platforms':'data_tools'}
+        'Data Tools and Platforms':'data_tools',
+        'Styling components':'style_components',
+        'Security and Compliance Tools':'security_tools'}
     return short_labels[long_label]
 
 chars_to_num = {'1. Strongly disagree':-2, '2':-1, '3. Neither agree not disagree':0, '4':1, '5. Strongly agree':2, '':0}

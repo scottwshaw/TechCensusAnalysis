@@ -115,10 +115,8 @@ def histogram_weighted_team_compositions(team_sizes):
     sns.histplot(data=expanded_data['twers'].apply(int)).set(xlabel='number of TW coders on the team',ylabel='number of TWers')
     plt.show() 
     ratio = pandas.to_numeric(expanded_data['nontwers']).round().astype(int)/expanded_data['twers'].astype(int)
-    sns.histplot(data=ratio).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
-    plt.show()
-
-
+    sns.histplot(data=ratio, binwidth=0.1).set(xlabel='ratio of nonthoughtworks coders to TW coders (nonTWers/TWers)', ylabel='number of TWers')  
+    plt.show() 
 
 def histogram_offshore_ratio(team_sizes):
     expanded_data = expand_frame_by_weights(team_sizes, team_sizes['twers'])
