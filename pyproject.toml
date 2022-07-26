@@ -5,10 +5,11 @@ description = "tools for analysing tech census data"
 authors = ["Scott Shaw"]
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.10"
 matplotlib = "^3.4.1"
 seaborn = "^0.11.1"
 gspread = "^3.7.0"
+scipy = "^1.8.1"
 
 [tool.poetry.dev-dependencies]
 
